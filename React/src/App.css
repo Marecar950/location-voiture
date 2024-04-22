@@ -1,0 +1,11 @@
+.card-addCar {
+  max-width: 580px;
+  padding: 30px;
+  margin: auto;
+  border-radius: 5%;
+}
+
+.titre-formulaire {
+  text-align: center;
+  color: #00008B; 
+}
