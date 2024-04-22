@@ -1,23 +1,18 @@
-import logo from './logo.svg';
+import {Routes, Route} from "react-router-dom";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+import Dashboard from "./admin/Dashboard.js";
+import AddCarForm from "./admin/AddCarForm.js";
+import EditCarForm from "./admin/EditCarForm.js";
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="mt-2">
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/addCarForm" element={<AddCarForm />} />
+        <Route path="/editCarForm/:id" element={<EditCarForm />} />
+    </Routes>
     </div>
   );
 }
