@@ -126,7 +126,7 @@ function Dashboard() {
                  filteredVoitures.map((result, index) => ( 
                   <div key={index} className="col-md-4 mb-4">
                       <div className="card h-100 shadow">
-                        <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top" alt="Image de la voiture" />
+                        <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="Image de la voiture" />
                           <div className="card-body">
                               <h5 className="card-title">{result[0].marque}</h5>
                               <ul className="list-group list-group-flush">
@@ -137,7 +137,6 @@ function Dashboard() {
                                 <li className="list-group-item">Nombre de passagers : {result[0].nombrePassagers}</li>
                                 <li className="list-group-item">Prix de la location par jour : {result[0].prixLocation} €</li>
                                 <li className="list-group-item">Climatisation : {result[0].climatisation ? 'oui' : 'non'}</li>
-                                <li className="list-group-item">Sièges enfants : {result[0].siegesEnfants ? 'oui' : 'non'}</li>
                                 {result[0].disponibilite === 'disponible' && (
                                   <>
                                     <li className="list-group-item">Départ depuis : {result.departureLocation}</li>
