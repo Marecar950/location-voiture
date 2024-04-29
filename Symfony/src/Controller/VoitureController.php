@@ -158,6 +158,24 @@ class VoitureController extends AbstractController
         return $this->json($voiture);
     }
 
+    #[Route('/search_voitures', name: 'search_voiture_by_location', methods: ['GET'])]
+    public function searchVoitureByLocation(Request $request, VoitureRepository $voitureRepository): Response
+    {
+        $departureLocation = $request->query->get('departureLocation');
+        $voitures = $voitureRepository->findVoituresByDepartureLocation($departureLocation);
+
+        foreach ($voitures as &$voiture) {
+            if ($voiture['departureDate']) {
+                $voiture['departureDate'] = $voiture['departureDate']->format('d/m/Y');
+            }
+            if ($voiture['returnDate']) {
+                $voiture['returnDate'] = $voiture['returnDate']->format('d/m/Y');
+            }
+        }    
+        
+        return $this->json($voitures);
+    }
+
     #[Route('/voiture/edit/{id}', name: 'app_voiture_edit', methods: ['POST'])]
     public function editVoiture(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, int $id): Response
     {
