@@ -1,33 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
+import googleMapsApiKey from "../googleMapsApiKey";
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+
+const libraries = ["places"];
 
 function Dashboard() {
 
     const [voitures, setVoitures] = useState([]);
     const [filteredVoitures, setFilteredVoitures] = useState([]);
     const [filterOption, setFilterOption] = useState('');
+    const [departureLocation, setDepartureLocation] = useState('');
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [voitureIdToDelete, setVoitureIdToDelete] = useState(null);
     const [deleteMessage, setDeleteMessage] = useState('');
 
+    const inputRef = useRef(null);
+    const apiKey = googleMapsApiKey();
+
     useEffect(() => {
       axios.get('https://www.mouzammil-marecar.fr/voitures').then(response => {
-          setVoitures(response.data);
-          console.log(response.data);
-          setFilteredVoitures(response.data);
+        setVoitures(response.data);
       }).catch(error => {
           console.error('Erreur lors de la récupération des données :', error);
       });
     }, []);
 
-    useEffect(() => {
-      filterCars();  
-    }, [filterOption, voitures]);
-    
-    const filterCars = () => {
+    const filterCars = useCallback(() => {
       if (Array.isArray(voitures)) {
         if (filterOption === 'available') {
             setFilteredVoitures(voitures.filter(voiture => voiture[0].disponibilite === 'disponible'));
@@ -39,27 +41,53 @@ function Dashboard() {
             setFilteredVoitures(voitures);
         }
       }     
-    };
+    }, [voitures, filterOption]);
+
+    useEffect(() => {
+      filterCars();  
+    }, [filterOption, voitures, filterCars]);
       
     const handleChange = async (e) => {
       const searchValue = e.target.value;
       setSearch(searchValue);
     
         try {
-          let response;
-          if (searchValue.trim() === '') {
-            response = await axios.get('https://www.mouzammil-marecar.fr/voitures');
-          } else {  
-            response = await axios.get(`https://www.mouzammil-marecar.fr/voiture/search?marque=${searchValue}`);
-          }  
+          const response = await axios.get(`https://www.mouzammil-marecar.fr/voiture/search?marque=${searchValue}`);
           setVoitures(response.data);
-          filterCars();
-          console.log(response.data);
         } catch(error) {
           console.error('Erreur lors de la recherche :', error);
         }    
       };
 
+      const handleSearch = async (e) => {
+        const searchLocation = e.target.value;
+        setDepartureLocation(searchLocation);
+
+        if (searchLocation.trim() === '') {
+          try {
+            const response = await axios.get('https://mouzammil-marecar.fr/voitures');
+            setVoitures(response.data);
+          } catch (error) {
+              console.error(error);
+          }
+        }
+      }
+
+    const handleDepartureLocation = async () => {
+      const [place] = inputRef.current.getPlaces();
+
+      if (place) {
+        setDepartureLocation(place.formatted_address);
+        try {
+          const searchLocation = place.formatted_address;
+          const response = await axios.get(`https://mouzammil-marecar.fr/search_voitures?departureLocation=${searchLocation}`);
+          setVoitures(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+      }
+    }
+    
       const handleDelete = async (id) => {
         try {
           const responseDelete = await axios.delete(`https://www.mouzammil-marecar.fr/voiture/delete/${id}`);
@@ -95,25 +123,37 @@ function Dashboard() {
           </Modal>
 
           <div className="container pt-3">
-            <div className="input-group">
-              <input type="text" value={search} className="form-control" placeholder="Recherchez par marque :" onChange={handleChange} />
+
+            <div className="input-group mb-3">
+              <span className="input-group-text">Marque :</span>
+              <input type="text" value={search} className="form-control" placeholder="Recherchez par marque" onChange={handleChange} />
             </div>
-          </div>
 
-          <div className="container pt-3">
-            <label htmlFor="filterOption" className="form-label">Disponibilité des voitures :</label>
-            <select id="filterOption" className="form-select" value={filterOption} onChange={(e) => setFilterOption(e.target.value)}>
-              <option value="all">Toutes les voitures</option>
-              <option value="available">Voitures disponibles</option>
-              <option value="unavailable">Voitures non disponibles</option>
-            </select>
-          </div>
+            <div className="input-group mb-3">
+              <label htmlFor="filterOption" className="input-group-text">Disponibilité des voitures :</label>
+              <select id="filterOption" className="form-select" value={filterOption} onChange={(e) => setFilterOption(e.target.value)}>
+                <option value="all">Toutes les voitures</option>
+                <option value="available">Voitures disponibles</option>
+                <option value="unavailable">Voitures non disponibles</option>
+              </select>
+            </div>
 
-          <div className="container pt-3">
+            {filterOption !== 'unavailable' && (
+              <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>
+                <StandaloneSearchBox onLoad={ref => (inputRef.current = ref)} onPlacesChanged={handleDepartureLocation}>
+                  <div className="input-group mb-3">
+                    <span className="input-group-text">Lieu de location :</span>
+                    <input type="text" value={departureLocation} placeholder="Recherchez un lieu de location" className="form-control" onChange={handleSearch} />
+                  </div>
+                </StandaloneSearchBox>
+              </LoadScript> 
+            )}
+
             <Link to="/addCarForm" className="btn btn-success">
-                <i className="bi bi-plus"></i> Ajouter une voiture
+              Ajouter une voiture
             </Link>
-          </div>
+
+          </div> 
 
           <div className="container pt-3">
               <div className="row">
@@ -126,7 +166,7 @@ function Dashboard() {
                  filteredVoitures.map((result, index) => ( 
                   <div key={index} className="col-md-4 mb-4">
                       <div className="card h-100 shadow">
-                        <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="Image de la voiture" />
+                        <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="" />
                           <div className="card-body">
                               <h5 className="card-title">{result[0].marque}</h5>
                               <ul className="list-group list-group-flush">

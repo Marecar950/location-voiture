@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { StandaloneSearchBox, LoadScript }  from "@react-google-maps/api";
+import googleMapsApiKey from "../googleMapsApiKey";
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+
+const libraries = ["places"];
 
 function EditCarForm() {
 
@@ -8,6 +12,9 @@ function EditCarForm() {
     const [message, setMessage] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const inputRef = useRef();
+    const apiKey = googleMapsApiKey();
 
     const { id } = useParams();
     const [voitureDetails, setVoitureDetails] = useState(
@@ -45,6 +52,16 @@ function EditCarForm() {
             }));
         }
     };
+
+    const handlePlaceChanged = () => {
+      const [place] = inputRef.current.getPlaces();
+        if (place) {
+          setVoitureDetails(prevState => ({
+            ...prevState,
+                lieuDepart: place.formatted_address
+            }));
+        }
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -247,11 +264,17 @@ function EditCarForm() {
 
                 {voitureDetails.disponibilite === 'disponible' && (
                   <>
-                    <div className="input-group mb-3">
-                        <span className="input-group-text">Départ depuis :</span>
-                        <input type="text" name="lieuDepart" value={voitureDetails.lieuDepart} placeholder="Entrez le lieu de départ" className="form-control" onChange={handleChange} />
-                    </div>
-                    {erreurs.lieuDepart && <p className="text-danger">{erreurs.lieuDepart}</p>}
+                   <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>
+                     <StandaloneSearchBox onLoad={ref => (inputRef.current = ref)} onPlacesChanged={handlePlaceChanged}>
+                        <div>
+                            <div className="input-group mb-3">
+                                <span className="input-group-text">Départ depuis :</span>
+                                <input type="text" name="lieuDepart" value={voitureDetails.lieuDepart} placeholder="Entrez le lieu de départ" className="form-control" onChange={handleChange} />
+                            </div>
+                            {erreurs.lieuDepart && <p className="text-danger">{erreurs.lieuDepart}</p>}
+                        </div>
+                     </StandaloneSearchBox> 
+                   </LoadScript>
 
                     <div className="input-group mb-3">
                         <span className="input-group-text">Date de début de location :</span>
@@ -289,7 +312,7 @@ function EditCarForm() {
                             <span className="input-group-text">Nom du fichier : </span>
                             <input type="text" value={voitureDetails.image} className="form-control" readOnly />
                         </div>     
-                        <img src={`https://www.mouzammil-marecar.fr/uploads/${voitureDetails.image}`} alt="Image de la voiture" className='img-fluid' />
+                        <img src={`https://www.mouzammil-marecar.fr/uploads/${voitureDetails.image}`} alt="" className='img-fluid' />
                     </div>
                 )} 
 
@@ -298,7 +321,7 @@ function EditCarForm() {
                 </div>
                 {voitureDetails.imagePreview && (
                     <div className="mb-3">
-                        <img src={voitureDetails.imagePreview} alt="Aperçu de l'image" className="img-thumbnail" />
+                        <img src={voitureDetails.imagePreview} alt="" className="img-thumbnail" />
                     </div>
                 )}
                 {erreurs.image && <p className="text-danger">{erreurs.image}</p>}

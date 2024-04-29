@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
+import googleMapsApiKey from "../googleMapsApiKey";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+
+const libraries = ["places"];
 
 function AddCarForm() {
     const [formData, setFormData] = useState({
@@ -26,8 +30,9 @@ function AddCarForm() {
     const [submitted, setSubmitted] = useState(false);
     const [erreurs, setErreurs] = useState({});
     const [loading, setLoading] = useState(false);
+    const inputRef = useRef(null);
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value, type, checked, files } = e.target;
         if (type === 'file') {
             const imageFile = files[0];
@@ -36,18 +41,32 @@ function AddCarForm() {
                 [name]: imageFile,
                 imagePreview: URL.createObjectURL(imageFile)
             }));
-        } else {
+        }  
+        else {
             setFormData(prevState => ({
                 ...prevState,
                 [name]: type === 'checkbox' ? checked : value
             }));
         }
     };
+    
+    const handlePlaceChanged = () => {
+        const [place] = inputRef.current.getPlaces();
+        if (place) {
+            setFormData(prevState => ({
+                ...prevState,
+                lieuDepart: place.formatted_address
+            }));
+        } 
+    };
+
+    const apiKey = googleMapsApiKey();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const errors = validation(formData);
         setErreurs(errors);
+        console.log(formData.lieuDepart);
 
         if (Object.keys(errors).length === 0) {
             setLoading(true);
@@ -207,11 +226,18 @@ function AddCarForm() {
 
                 {formData.disponibilite === 'disponible' && (
                   <>
-                    <div className="input-group mb-3">
-                        <span className="input-group-text">Départ depuis :</span>
-                        <input type="text" name="lieuDepart" placeholder="Entrez le lieu de départ" className="form-control" onChange={handleChange} />
-                    </div>
-                    {erreurs.lieuDepart && <p className="text-danger">{erreurs.lieuDepart}</p>}
+                    <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>
+                      <StandaloneSearchBox onLoad={ref => (inputRef.current = ref)} onPlacesChanged={handlePlaceChanged}
+                      >
+                        <div>
+                            <div className="input-group mb-3">
+                                <span className="input-group-text">Départ depuis :</span>
+                                <input type="text" name="lieuDepart" placeholder="Entrez le lieu de départ" className="form-control" />
+                            </div>        
+                            {erreurs.lieuDepart && <p className="text-danger">{erreurs.lieuDepart}</p>}
+                        </div>
+                      </StandaloneSearchBox>
+                    </LoadScript> 
 
                     <div className="input-group mb-3">
                         <span className="input-group-text">Date de début de location : </span>
@@ -223,8 +249,8 @@ function AddCarForm() {
                         <span className="input-group-text">Date de fin de location :</span>
                         <input type="date" name="dateFin" value={formData.dateFin} className="form-control" onChange={handleChange} />
                     </div>
-                    {erreurs.dateFin && <p className="text-danger">{erreurs.dateFin}</p>}
-                  </> 
+                    {erreurs.dateFin && <p className="text-danger">{erreurs.dateFin}</p>}   
+                  </>
                 )}
 
                 <div className="row mb-3 align-items-center">
@@ -248,7 +274,7 @@ function AddCarForm() {
                 </div>
                 {formData.imagePreview && (
                     <div className="mb-3">
-                        <img src={formData.imagePreview} alt="Aperçu de l'image" className="img-thumbnail" />
+                        <img src={formData.imagePreview} alt="" className="img-thumbnail" />
                     </div>
                 )}
                 {erreurs.image && <p className="text-danger">{erreurs.image}</p>}
