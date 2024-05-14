@@ -177,7 +177,7 @@ function EditCarForm() {
     };
        
     return(
-        <div>
+        <div>        
             <h2 className="mb-4 titre-formulaire">Modifier une voiture</h2>
             <div className="card card-addCar bg-light">
              {!submitted ? (
