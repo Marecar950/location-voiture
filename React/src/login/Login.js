@@ -9,7 +9,6 @@ function Login() {
 
     const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
-    const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
 
     const [formData, setFormData] = useState({
@@ -44,7 +43,7 @@ function Login() {
               navigate("/");
             } else if (response.data.role.includes('ROLE_USER')) {
               login();
-              setSuccess(response.data.message);
+              navigate('/searchVehiculesForm');
             } else {
               setError(response.data.error);
             }
@@ -65,7 +64,6 @@ function Login() {
                         <div className="text-center mb-3">
                             <CgProfile color="gray" size={100} />
                         </div>
-                          {success && <div className="alert alert-success">{success}</div>}
                           <form onSubmit={handleSubmit}>
                             {error && <div className="alert alert-danger text-center" role="alert">{error}</div>}
                             <div className="mb-3">

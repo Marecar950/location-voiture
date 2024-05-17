@@ -285,7 +285,7 @@ function AddCarForm() {
                 </div>
 
                 <div className="d-flex justify-content-between">
-                    <Link to="/" className="btn btn-secondary btn-lg">Retour</Link>
+                    <Link to="/dashboard" className="btn btn-secondary btn-lg">Retour</Link>
                     <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>{loading ? 'Chargement...' : 'Ajouter'}</button>
                 </div>
 
@@ -293,7 +293,7 @@ function AddCarForm() {
              ) : (
                 <>
                     <div class="alert alert-success text-center" role="alert">{message}</div>
-                    <Link to="/" className="btn btn-primary">Retour à la page d'accueil</Link>
+                    <Link to="/dashboard" className="btn btn-primary">Retour à la page d'accueil</Link>
                 </>
                
              )}     
