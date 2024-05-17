@@ -69,15 +69,16 @@ class VoitureRepository extends ServiceEntityRepository
       public function findVoituresDisponibles($departureLocation, $departureDate, $returnDate)
       {
         return $this->createQueryBuilder('v')
-            ->leftJoin('v.locations', 'l')
-            ->where('l.departureLocation = :departureLocation')
-            ->andWhere('l.departureDate <= :departureDate')
-            ->andWhere('l.returnDate >= :returnDate')
-            ->setParameter('departureLocation', $departureLocation)
-            ->setParameter('departureDate', $departureDate)
-            ->setParameter('returnDate', $returnDate)
-            ->getQuery()
-            ->getResult();
+                    ->select('v', 'l.departureLocation', 'l.departureDate', 'l.returnDate', '(DATE_DIFF(:returnDate, :departureDate) +1) AS nb_days', '(DATE_DIFF(:returnDate, :departureDate) +1) * v.prixLocation AS prix_location')
+                    ->leftJoin('v.locations', 'l')
+                    ->where('l.departureLocation = :departureLocation')
+                    ->andWhere('l.departureDate <= :departureDate')
+                    ->andWhere('l.returnDate >= :returnDate')
+                    ->setParameter('departureLocation', $departureLocation)
+                    ->setParameter('departureDate', $departureDate)
+                    ->setParameter('returnDate', $returnDate)
+                    ->getQuery()
+                    ->getResult();
       }
 
       public function findVoitureWithLocationByMarque(string $marque)
