@@ -10,7 +10,7 @@ const NavigationBar = () => {
             <Link className="navbar-brand nav-link" to="/login" onClick={logout}>Déconnexion</Link>
           ) : (
             <>
-              <Link className="navbar-brand nav-link" to="/searchVehiculesForm">Accueil</Link>
+              <Link className="navbar-brand nav-link" to="/">Accueil</Link>
               <div className="navbar-nav ms-auto">
                 <Link className="navbar-brand nav-link mr-3" to="/register">Inscription</Link>
                 <Link className="navbar-brand nav-link mr-3" to="/login">Connexion</Link>

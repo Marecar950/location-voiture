@@ -34,7 +34,7 @@ function App() {
 
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/searchVehiculesForm" element={<SearchVehicules />} />
+        <Route path="/" element={<SearchVehicules />} />
         <Route path="/search_results" element={<SearchResults />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/confirm_registration/:token" element={<ConfirmRegistration />} />
