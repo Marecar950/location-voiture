@@ -47,6 +47,7 @@ function SearchVehicules() {
         }
 
         const response = await axios.post('https://mouzammil-marecar.fr/search', formDataToSend);
+        console.log(response.data);
         navigate('/search_results', { state: { results: response.data, formData } });
     }
 
@@ -54,8 +55,8 @@ function SearchVehicules() {
         <div className="container mt-5">
                 <img src={locationVoitureImage} alt="" className="background-image"></img>
                     <form onSubmit={handleSubmit} className="search-form">
-                            <div class="card">
-                                <div class="card-body">
+                            <div className="card">
+                                <div className="card-body">
                                     <div className="mb-3">
                                         <label htmlFor="lieuDepart">Lieu de départ</label>
                                             <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>

@@ -7,7 +7,7 @@ import axios from "axios";
 
 function Login() {
 
-    const { login } = useAuth();
+    const { login, user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -38,12 +38,19 @@ function Login() {
 
             const response = await axios.post('https://mouzammil-marecar.fr/user/login', formDataToSend);
             console.log(response.data);
+            if (response.data.token) {
+              login(response.data.token);
+            }
+
+            if (response.data.user) {
+              user(response.data.user);
+              console.log(response.data.user);
+            }
+
             if(response.data.role.includes('ROLE_ADMIN')) {
-              login();
-              navigate("/");
+              navigate("/dashboard");
             } else if (response.data.role.includes('ROLE_USER')) {
-              login();
-              navigate('/searchVehiculesForm');
+              navigate('/');
             } else {
               setError(response.data.error);
             }

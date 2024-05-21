@@ -24,6 +24,7 @@ function Dashboard() {
     useEffect(() => {
       axios.get('https://www.mouzammil-marecar.fr/voitures').then(response => {
         setVoitures(response.data);
+        console.log(response.data);
       }).catch(error => {
           console.error('Erreur lors de la récupération des données :', error);
       });

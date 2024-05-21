@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import googleMapsApiKey from '../googleMapsApiKey';
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
@@ -7,11 +7,13 @@ import { IoMdSpeedometer } from "react-icons/io";
 import { FaUserFriends } from "react-icons/fa";
 import { GiGearStickPattern } from "react-icons/gi";
 import axios from 'axios';
+import { useAuth } from '../AuthContext';
 
 const libraries = ['places'];
 
 function SearchResults() {
 
+    const { isLoggedIn } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const inputRef = useRef();
@@ -29,6 +31,10 @@ function SearchResults() {
         }));
     }
 
+    const [manuelle, setManuelle] = useState(false);
+    const [automatique, setAutomatique] = useState(false);
+    const [filteredResults, setFilteredResults] = useState(results)
+
     const handlePlaceChanged = () => {
         const [place] = inputRef.current.getPlaces();
         if (place) {
@@ -39,11 +45,34 @@ function SearchResults() {
         }
     }
 
+    const filterOptions = () => {
+        let filtered = results;
+        if (manuelle) {
+            filtered = filtered.filter(result => result[0].transmission === 'manuelle');
+        }
+        if (automatique) {
+            filtered = filtered.filter(result => result[0].transmission === 'automatique');
+        }
+        setFilteredResults(filtered);
+    }
+
+    useEffect(() => {
+        filterOptions();
+    }, [manuelle, automatique, results]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const response = await axios.post('https://mouzammil-marecar.fr/search', formState);
         console.log(response.data);
         navigate('/search_results', { state: { results: response.data, formData: formState }} );
+    }
+
+    const handleReservation = (result) => {
+        if (isLoggedIn) {
+            navigate('/reservation', { state: { result, formData: formState } });
+        } else {
+            navigate('/login');
+        }
     }
 
     return (
@@ -78,7 +107,24 @@ function SearchResults() {
                 </div>
             </form>    
             <div className="row">
-                {results.map((result, index) => (
+                <div className="col-md-4">
+                    <div className="card bg-light">
+                        <div className="card-body">
+                            <h4 className="mb-4">Options</h4>
+                            <div className="mb-3 form-check form-check-inline">
+                                <label htmlFor="manuelle">Manuelle</label>
+                                <input type="checkbox" id="manuelle" name="manuelle" className="form-check-input" onChange={(e) => setManuelle(e.target.checked) }></input>
+                            </div>
+                            <div className="mb-3 form-check form-check-inline">
+                                <label htmlFor="automatique">Automatique</label>
+                                <input type="checkbox" id="automatique" name="automatique" className="form-check-input" onChange={(e) => setAutomatique(e.target.checked) }></input>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {filteredResults.map((result, index) => (
                     <div key={index} className="col-md-4">
                         <div className="card h-100 shadow">
                             <img src={`https://mouzammil-marecar.fr/uploads/${result[0].image}`} alt="" className="card-img-top car-image" />
@@ -94,7 +140,7 @@ function SearchResults() {
                                     <p className="card-text" style={{ fontSize: '1.5rem', fontWeight: 'bold'}}>Total pour {result.nb_days} jours  : {result.prix_location} €</p>
                                 </div>
                                 <div className="d-flex justify-content-end">    
-                                    <button type="submit" className="btn btn-primary btn-lg">Réserver</button>
+                                    <button onClick={() => handleReservation(result)} className="btn btn-primary btn-lg">Réserver</button>
                                 </div>    
                             </div>
                         </div>
