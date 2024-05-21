@@ -57,9 +57,13 @@ class Voiture
     #[Ignore]
     private Collection $locations;
 
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'voiture')]
+    private Collection $reservations;
+
     public function __construct()
     {
         $this->locations = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,6 +239,36 @@ class Voiture
             // set the owning side to null (unless already changed)
             if ($location->getVoiture() === $this) {
                 $location->setVoiture(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setVoiture($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getVoiture() === $this) {
+                $reservation->setVoiture(null);
             }
         }
 

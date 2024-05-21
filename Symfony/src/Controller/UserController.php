@@ -95,7 +95,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/login', name: 'app_user_login', methods: ['POST'])]
-    public function login(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher): Response
+    public function login(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $JWTManager): Response
     {
         $email = $request->request->get('email');
         $plainPassword = $request->request->get('password');
@@ -107,17 +107,32 @@ class UserController extends AbstractController
         }
 
         $roles = $user->getRoles();
+        $token = $JWTManager->create($user);
 
-        if (!$user->isEmailConfirmed()) {
-            if(in_array('ROLE_USER', $roles)) {
-                return $this->json(['role' => 'ROLE_USER']);
-            } else {
-                return $this->json(['role' => $roles,
-                                    'message' => "Connexion réussie en tant qu'utilisateur."]);
+       /* if (!$user->isEmailConfirmed()) {
+            if(in_array('ROLE_ADMIN', $roles)) {
+                return $this->json(['role' => 'ROLE_ADMIN',
+                                    'token' => $token ]);
+            } elseif (in_array('ROLE_USER', $roles)) {
+                return $this->json(['role' => 'ROLE_USER',
+                                    'token' => $token]);
             }
         } else {
             return $this->json(['error' => 'Adresse email ou mot de passe incorrect']);
-        }
+        }*/
+
+        $userData = [
+            'id' => $user->getId(),
+            'lastname' => $user->getLastname(),
+            'firstname' => $user->getFirstname(),
+            'email' => $user->getEmail(),
+            'dateOfBirth' => $user->getDateOfBirth()->format('Y-m-d')
+        ];
+
+        return $this->json(['role' => $roles,
+                           'token' => $token,
+                           'user' => $userData
+                           ]);
     }
 
     #[Route('/user/verify_mail', name: 'app_user_verify_mail', methods: ['GET'])]
