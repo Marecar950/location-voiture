@@ -7,6 +7,7 @@ import NavigationBar from "./NavigationBar";
 import SearchVehicules from "./search_vehicules/searchVehiculesForm";
 import SearchResults from "./search_vehicules/search_results";
 import Reservation from "./reservation/Reservation.js";
+import UserReservations from "./reservation/UserReservations";
 import Registration from "./register/Registration";
 import ConfirmRegistration from "./register/ConfirmRegistration";
 import Login from "./login/Login";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/" element={<SearchVehicules />} />
         <Route path="/search_results" element={<SearchResults />} />
         <Route path="/reservation" element={<Reservation />} />
+        <Route path="/reservation/:user_id" element={<UserReservations />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/confirm_registration/:token" element={<ConfirmRegistration />} />
         <Route path="/login" element={<Login />} />

@@ -9,6 +9,7 @@ const NavigationBar = () => {
           {isLoggedIn ? (
             <div className="navbar-nav ms-auto">
               <span className="navbar-brand">{userData.firstname}</span>
+              <Link className="navbar-brand nav-link" to={`/reservation/${userData.id}`}>Mes réservations</Link>
               <Link className="navbar-brand nav-link" to="/login" onClick={logout}>Déconnexion</Link>
             </div>
           ) : (
