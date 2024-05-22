@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Entity\Reservation;
+use App\Repository\ReservationRepository;
 use App\Repository\UserRepository;
 use App\Repository\VoitureRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ReservationController extends AbstractController
 {
@@ -75,5 +78,40 @@ class ReservationController extends AbstractController
         $mailer->send($Email);            
 
         return $this->json(['message' => 'Merci de votre réservation. Nous avons envoyé une confirmation de votre réservation à votre adresse email.']);
+    }
+
+    #[Route('/reservations', name: 'user_reservations', methods: ['GET'])]
+    public function getUserReservations(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $userId = $request->query->get('user_id');
+        $user = $entityManager->getRepository(User::class)->find($userId);
+
+        $reservations = $entityManager->getRepository(Reservation::class)->findBy(['user' => $user]);
+
+        $data = [];
+
+        foreach ($reservations as $reservation) {
+            $data[] = [
+                'id' => $reservation->getId(),
+                'reference' => $reservation->getReference(),
+                'lieuDepart' => $reservation->getLieuDepart(),
+                'dateDepart' => $reservation->getDateDepart()->format('Y-m-d'),
+                'dateRetour' => $reservation->getDateRetour()->format('Y-m-d')
+            ];
+        }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route('/reservation/cancel/{id}', name: 'reservation_cacncel', methods: ['PUT'])]
+    public function cancelReservation(EntityManagerInterface $em, int $id)
+    {
+        $reservation = $em->getRepository(Reservation::class)->find($id);
+
+        $reservation->setStatut('Annulé');
+        $em->persist($reservation);
+        $em->flush();
+
+        return new JsonResponse(['success' => 'Votre réservation a été annulée']);
     }
 }
