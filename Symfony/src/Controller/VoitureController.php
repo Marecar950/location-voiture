@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
-
+use Symfony\Component\Filesystem\Filesystem;
 
 class VoitureController extends AbstractController
 {
@@ -67,7 +67,7 @@ class VoitureController extends AbstractController
     }
 
     #[Route('/voiture/ajouter', name: 'app_voiture_ajouter', methods: ['POST'])]
-    public function ajouterVoiture(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response 
+    public function ajouterVoiture(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): JsonResponse 
     {
         
         $immatriculation = $request->request->get('immatriculation');
@@ -88,14 +88,7 @@ class VoitureController extends AbstractController
         $climatisationString = $request->request->get('climatisation');
         $siegesEnfantsString = $request->request->get('siegesEnfants');
         $climatisation = $climatisationString === "true" ? true : false;
-        $siegesEnfants = $siegesEnfantsString === "true" ? true : false;   
-
-        $uploadedFile = $request->files->get('image');
-        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = $slugger->slug($originalFilename);
-        $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        $uploadedFile->move($this->getParameter('uploads_directory'), $newFilename);
-
+        $siegesEnfants = $siegesEnfantsString === "true" ? true : false;
         $description = $request->request->get('description');
 
         $voiture = new Voiture();
@@ -109,7 +102,32 @@ class VoitureController extends AbstractController
         $voiture->setDisponibilite($disponibilite);
         $voiture->setClimatisation($climatisation);
         $voiture->setSiegesEnfants($siegesEnfants);
-        $voiture->setImage($newFilename);
+
+        $uploadedFile = $request->files->get('image');    
+        if ($uploadedFile) {
+            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+            $uploadedFile->move($this->getParameter('uploads_directory'), $newFilename);
+            $voiture->setImage($newFilename);
+        }
+
+        $fileAndroid = $request->request->get('image'); 
+        if (preg_match('/^data:image\/(\w+);base64,/', $fileAndroid, $matches)) {
+            $type = $matches[1];
+
+            $fileAndroid = substr($fileAndroid, strpos($fileAndroid, ',') + 1);
+            $fileAndroid = base64_decode($fileAndroid);
+            $originalFilename = 'uploaded_image';
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$type;
+            $filesystem = new Filesystem();
+            $uploadsDirectory = $this->getParameter('uploads_directory');
+            $filePath = $uploadsDirectory . '/' . $newFilename;
+            $filesystem->dumpFile($filePath, $fileAndroid);
+            $voiture->setImage($newFilename);
+        }   
+
         $voiture->setDescription($description);
 
         $departureLocation = $request->request->get('lieuDepart');
@@ -217,7 +235,27 @@ class VoitureController extends AbstractController
             $uploadedFile->move($this->getParameter('uploads_directory'), $newFilename);
 
             $voiture->setImage($newFilename);
-        }    
+        } 
+        
+        $file = $request->request->get('image');
+        if ($file) {
+            if (preg_match('/^data:image\/(\w+);base64,/', $file, $matches)) {
+                $type = $matches[1]; 
+
+                $file = substr($file, strpos($file, ',') +1);
+                $file = base64_decode($file);
+                $originalFilename = 'uploaded_image';
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$type;
+                $filesystem = new Filesystem();
+                $uploadsDirectory = $this->getParameter('uploads_directory');
+                $filePath = $uploadsDirectory . '/' .$newFilename;
+                $filesystem->dumpFile($filePath, $file);
+
+                $voiture->setImage($newFilename);
+            }
+        }
+
         $voiture->setDescription($description);
 
         $departureLocation = $request->request->get('lieuDepart');

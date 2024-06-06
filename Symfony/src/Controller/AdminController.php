@@ -2,15 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Admin;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use App\Entity\Admin;
-use App\Repository\AdminRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminController extends AbstractController
 {
@@ -23,41 +21,20 @@ class AdminController extends AbstractController
     }
 
     #[Route('/admin/register', name: 'admin_register', methods: ['POST'])]
-    public function registerAdmin(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
     {
+        $data = json_decode($request->getContent(), true);
 
-        $requestData = json_decode($request->getContent(), true);
-        $email = $requestData["email"];
-        $plainPassword = $requestData["password"];
+        $admin = new Admin();
+        $admin->setEmail($data['email']);
 
-        $user = new Admin();
-        $user->setEmail($email);
+        $hashedPassword = $passwordHasher->hashPassword($admin, $data['password']); 
+        $admin->setPassword($hashedPassword);
+        $admin->setRoles(['ROLE_ADMIN']);
 
-        $hashedPassword = $passwordHasher->hashPassword(
-            $user,
-            $plainPassword
-        );
-
-        $user->setPassword($hashedPassword);
-
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $em->persist($admin);
+        $em->flush();
 
         return $this->json(['message' => 'Admin created successfully']);
-    }
-
-    #[Route('/admin/login', name: 'admin_login', methods: ['POST'])]
-    public function login(Request $request, AdminRepository $adminRepository, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $email = $request->request->get('email');
-        $plainPassword = $request->request->get('password');
-
-        $admin = $adminRepository->findOneBy(['email' => $email]);
-
-        if (!$passwordHasher->isPasswordValid($admin, $plainPassword)) {
-            return new JsonResponse(['error' => 'Adresse e-mail ou mot de passe incorrect']);
-        }
-
-        return new JsonResponse(['message' => 'Connexion réussie']);
     }
 }

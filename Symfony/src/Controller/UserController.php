@@ -94,47 +94,6 @@ class UserController extends AbstractController
         return $this->json(['message' => 'Votre inscription a été confirmée avec succès']);
     }
 
-    #[Route('/user/login', name: 'app_user_login', methods: ['POST'])]
-    public function login(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $JWTManager): Response
-    {
-        $email = $request->request->get('email');
-        $plainPassword = $request->request->get('password');
-
-        $user = $userRepository->findOneBy(['email' => $email]);
-
-        if (!$passwordHasher->isPasswordValid($user, $plainPassword)) {
-            return $this->json(['error' => 'Adresse email ou mot de passe incorrect']);
-        }
-
-        $roles = $user->getRoles();
-        $token = $JWTManager->create($user);
-
-       /* if (!$user->isEmailConfirmed()) {
-            if(in_array('ROLE_ADMIN', $roles)) {
-                return $this->json(['role' => 'ROLE_ADMIN',
-                                    'token' => $token ]);
-            } elseif (in_array('ROLE_USER', $roles)) {
-                return $this->json(['role' => 'ROLE_USER',
-                                    'token' => $token]);
-            }
-        } else {
-            return $this->json(['error' => 'Adresse email ou mot de passe incorrect']);
-        }*/
-
-        $userData = [
-            'id' => $user->getId(),
-            'lastname' => $user->getLastname(),
-            'firstname' => $user->getFirstname(),
-            'email' => $user->getEmail(),
-            'dateOfBirth' => $user->getDateOfBirth()->format('Y-m-d')
-        ];
-
-        return $this->json(['role' => $roles,
-                           'token' => $token,
-                           'user' => $userData
-                           ]);
-    }
-
     #[Route('/user/verify_mail', name: 'app_user_verify_mail', methods: ['GET'])]
     public function verifyMail(Request $request, EntityManagerInterface $entityManager, JWTTokenManagerInterface $JWTManager): Response
     {
