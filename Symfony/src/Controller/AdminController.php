@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Admin;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,5 +37,12 @@ class AdminController extends AbstractController
         $em->flush();
 
         return $this->json(['message' => 'Admin created successfully']);
+    }
+
+    #[Route('/admin/list_clients', name: 'admin_list_clients', methods:['GET'])]
+    public function listClients(EntityManagerInterface $entityManager): Response
+    {
+        $users = $entityManager->getRepository(User::class)->findAll();
+        return $this->json($users);
     }
 }

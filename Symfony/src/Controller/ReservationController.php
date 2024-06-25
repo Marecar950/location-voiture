@@ -54,6 +54,7 @@ class ReservationController extends AbstractController
         $reservation->setDateDepart($formatted_dateDepart);
         $reservation->setDateRetour($formatted_dateRetour);
         $reservation->setReference($reference);
+        $reservation->setStatut('Confirmée');
 
         $entityManager->persist($reservation);
         $entityManager->flush();
@@ -96,7 +97,8 @@ class ReservationController extends AbstractController
                 'reference' => $reservation->getReference(),
                 'lieuDepart' => $reservation->getLieuDepart(),
                 'dateDepart' => $reservation->getDateDepart()->format('Y-m-d'),
-                'dateRetour' => $reservation->getDateRetour()->format('Y-m-d')
+                'dateRetour' => $reservation->getDateRetour()->format('Y-m-d'),
+                'statut' => $reservation->getStatut()
             ];
         }
 

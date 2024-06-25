@@ -28,6 +28,18 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/user/{id}', name: 'user_details', methods: ['GET'])]
+    public function getUserById(EntityManagerInterface $entityManager, int $id): Response
+    { 
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return $this->json(['error', 'User not found']);
+        }
+
+        return $this->json($user);
+    }
+
     #[Route('/user/register', name: 'app_user_register', methods: ['POST'])]
     public function register(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $JWTManager, EntityManagerInterface $entityManager): Response
     {
@@ -69,11 +81,10 @@ class UserController extends AbstractController
             $Email->to($user->getEmail());
             $Email->subject('Confirmation de votre inscription');
             $Email->html('<p>Veuillez cliquer sur le lien pour confirmer votre inscription : </p><a href="https://location-voiture.mouzammil-marecar.fr/confirm_registration/' . $token . '">https://location-voiture.mouzammil-marecar.fr/confirm_registration/'. $token .'</a>');
-
             $mailer->send($Email); 
         }
 
-        return $this->json(['message' => 'Veuillez vérifier votre adresse email pour confirmer votre inscription.']);
+        return $this->json(['message' => 'Veuillez vérifier votre adresse email pour confirmer son inscription']);
     }
 
     #[Route('/user/confirm_registration', name: 'app_user_confirm_registration', methods: ['GET'])]
@@ -169,5 +180,34 @@ class UserController extends AbstractController
         }
 
         return $this->json(['message' => 'Votre mot de passe a bien été mis à jour.']);
+    }
+
+    #[Route('/user/edit_profil/{id}', name: 'user_edit_profil', methods: ['PUT'])]
+    public function editProfil(Request $request, EntityManagerInterface $entityManager, int $id): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return $this->json(['error' => 'Utilisateur non trouvé']);
+        }
+
+        $civility = $data['civility'];
+        $lastname = $data['lastname'];
+        $firstname = $data['firstname'];
+        $dateOfBirth = $data['dateOfBirth'];
+        $dateOfBirthFormat = DateTimeImmutable::createFromFormat('Y-m-d', $dateOfBirth);
+        $email = $data['email'];
+
+        $user->setCivility($civility);
+        $user->setLastname($lastname);
+        $user->setFirstname($firstname);
+        $user->setDateOfBirth($dateOfBirthFormat);
+        $user->setEmail($email);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Votre profil a été mis à jour avec succès']);
     }
 }

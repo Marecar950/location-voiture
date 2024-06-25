@@ -40,6 +40,7 @@ class SecurityController extends AbstractController
 
             $userData = [
                 'id' => $user->getId(),
+                'civility' => $user->getCivility(),
                 'lastname' => $user->getLastname(),
                 'firstname' => $user->getFirstname(),
                 'email' => $user->getEmail(),
@@ -51,18 +52,28 @@ class SecurityController extends AbstractController
                 'token' => $token,
                 'user' => $userData
             ]);
-        } else {
+        } 
+
             $admin = $adminRepository->findOneBy(['email' => $email]);
 
             if ($admin) {
-
+            
                 if (!$passwordHasher->isPasswordValid($admin, $password)) {
                     return new JsonResponse(['error' => 'Adresse email ou mot de passe incorrect']);
                 }
+                $token = $JWTManager->create($admin);
 
-                return new JsonResponse(['admin' => $admin->getRoles()]);
+                $adminData = [
+                    'email' => $admin->getEmail(),
+                    'roles' => $admin->getRoles()
+                ];
+
+                return new JsonResponse(['token' => $token,
+                                         'admin' => $adminData
+                                        ]);
             }
-        }
+
+            return new JsonResponse(['error' => 'Adresse email ou mot de passe incorrect']);
             
     }
 }
