@@ -28,7 +28,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/user/{id}', name: 'user_details', methods: ['GET'])]
+    #[Route('/user/{id}', name: 'user_details', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function getUserById(EntityManagerInterface $entityManager, int $id): Response
     { 
         $user = $entityManager->getRepository(User::class)->find($id);
@@ -87,12 +87,12 @@ class UserController extends AbstractController
         return $this->json(['message' => 'Veuillez vérifier votre adresse email pour confirmer son inscription']);
     }
 
-    #[Route('/user/confirm_registration', name: 'app_user_confirm_registration', methods: ['GET'])]
-    public function confirmRegistration(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/user/confirm-registration', name: 'app_user_confirm_registration', methods: ['GET'])]
+    public function confirmRegistration(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         $token = $request->query->get('token');
 
-        $user = $entityManager->getRepository(User::class)->findOneBy(['token' => $token]);
+        $user = $userRepository->findOneBy(['token' => $token]);
 
         if (!$user) {
             return $this->json(['error' => 'Token invalide']);
@@ -149,6 +149,7 @@ class UserController extends AbstractController
             return $this->json(['error' => 'Token invalide']);
         }
 
+        $user->setToken(null);
         $user->setEmailConfirmed(true);
         $entityManager->flush();
         
