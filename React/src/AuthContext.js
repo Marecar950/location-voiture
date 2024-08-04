@@ -4,65 +4,94 @@ import { jwtDecode } from 'jwt-decode';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedUser, setIsLoggedUser] = useState(false);
+    const [isLoggedAdmin, setIsLoggedAdmin] = useState(false);
+
     const [userData, setUserData] = useState({
         id: '',
         dateOfBirth: '',
         email: '',
         firstname: '',
         lastname: '',
+        roles: []
     });
+    const [adminData, setAdminData] = useState({
+        email: '',
+        roles: [],
+    }) 
 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const userToken = localStorage.getItem('userToken');
+        const adminToken = localStorage.getItem('adminToken');
 
-        if (token) {
+        if (userToken) {
             try  {
-                const decodedToken = jwtDecode(token);
-                setIsLoggedIn(true);
+                const decodedToken = jwtDecode(userToken);
+                setIsLoggedUser(true);
                 setUserData({
                     id: decodedToken.id,
                     dateOfBirth: decodedToken.dateOfBirth,
                     email: decodedToken.email,
                     firstname: decodedToken.firstname,
-                    lastname: decodedToken.lastname
+                    lastname: decodedToken.lastname,
+                    roles: decodedToken.roles
                 });
             } catch (error) {
                 console.error('Failed to decode token:', error);
-                setIsLoggedIn(false);
+                setIsLoggedUser(false);
                 setUserData({
                     id: '',
                     dateOfBirth: '',
                     email: '',
                     firstname: '',
                     lastname: '',
+                    roles: []
                 });
             }
+        }
+
+        if (adminToken) {
+            const decodedToken = jwtDecode(adminToken);
+            setIsLoggedAdmin(true);
+            setAdminData({
+                email: decodedToken.username,
+                roles: decodedToken.roles
+            })
         }
         setLoading(false);
     }, []);
 
-    const login = (token) => {
-        localStorage.setItem('token', token);
-        const decodedToken = jwtDecode(token);
-        setIsLoggedIn(true);
-        setUserData(decodedToken.user);
+    const loginUser = (token) => {
+        localStorage.setItem('userToken', token);
+        setIsLoggedUser(true);
+    }
+
+    const loginAdmin = (token) => {
+        localStorage.setItem('adminToken', token);
+        setIsLoggedAdmin(true);
     }
 
     const user = (newUserData) => {
-        setIsLoggedIn(true);
+        setIsLoggedUser(true);
         setUserData(newUserData);
     }
 
+    const admin = (newAdminData) => {
+        setIsLoggedAdmin(true);
+        setAdminData(newAdminData);
+    }
+
     const logout = () => {
-        localStorage.removeItem('token');
-        setIsLoggedIn(false);
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('adminToken');
+        setIsLoggedUser(false);
+        setIsLoggedAdmin(false)
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, userData, user, login, logout, loading }}>
+        <AuthContext.Provider value={{ isLoggedUser, isLoggedAdmin, userData, adminData, user, admin, loginUser, loginAdmin, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

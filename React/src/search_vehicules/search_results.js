@@ -13,7 +13,7 @@ const libraries = ['places'];
 
 function SearchResults() {
 
-    const { isLoggedIn } = useAuth();
+    const { isLoggedUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const inputRef = useRef();
@@ -68,7 +68,7 @@ function SearchResults() {
     }
 
     const handleReservation = (result) => {
-        if (isLoggedIn) {
+        if (isLoggedUser) {
             navigate('/reservation', { state: { result, formData: formState } });
         } else {
             navigate('/login');

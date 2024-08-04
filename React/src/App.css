@@ -34,6 +34,15 @@
   border-radius: 5%;
 }
 
+.card-account {
+  width: 700px;
+  margin: auto
+}
+
+.user-info {
+  margin-left: 22%;
+}
+
 .titre-formulaire {
   text-align: center;
   color: #00008B; 

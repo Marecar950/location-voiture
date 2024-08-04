@@ -13,7 +13,8 @@ function ConfirmRegistration() {
     useEffect(() => {
         const confirmRegistration = async () => {
             try {
-                const response = await axios.get(`https://mouzammil-marecar.fr/user/confirm_registration?token=${token}`);
+                const response = await axios.get(`https://mouzammil-marecar.fr/user/confirm-registration?token=${token}`);
+                console.log(response.data);
                 if (response.data.message) {
                     setConfirmationMessage(response.data.message);
                     navigate('/login');
