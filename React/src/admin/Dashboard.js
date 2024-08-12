@@ -157,7 +157,7 @@ function Dashboard() {
           </div> 
 
           <div className="container pt-3">
-              <div className="row">
+              <div className="car-container">
                 {deleteMessage && (
                   <div className="alert alert-success text-center">
                       {deleteMessage}
@@ -165,7 +165,7 @@ function Dashboard() {
                 )}    
                 {filteredVoitures && filteredVoitures.length > 0 ? (
                  filteredVoitures.map((result, index) => ( 
-                  <div key={index} className="col-md-4 mb-4">
+                  <div key={index} className="col-md-4 mb-4 car-card">
                       <div className="card h-100 shadow">
                         <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="" />
                           <div className="card-body">

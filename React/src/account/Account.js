@@ -37,7 +37,8 @@ function Account() {
         <div className="container">
             <h3 className="mt-4 text-center">Informations personnelles</h3>
 
-                <div className="user-info p-4 mt-3 mb-3">
+                <div className="user-info mt-5 mb-3">
+
                     <div className="row justify-content-center mt-3 mb-3">
                         <div className="col-sm-2"><strong>Civilité</strong></div>
                         <div className="col-sm-5">{data.civility}</div>
@@ -64,7 +65,8 @@ function Account() {
                     </div>
 
                     <div className="row justify-content-center">
-                        <Link className="btn btn-primary">Modifier mon profil</Link>
+                        <div className="col-sm-2"></div>
+                        <Link to={`/edit_profil/${user_id}`} className="btn btn-primary col-sm-5 offset-custom">Modifier mon profil</Link>
                     </div>
                 </div>
 

@@ -9,10 +9,11 @@ export const AuthProvider = ({ children }) => {
 
     const [userData, setUserData] = useState({
         id: '',
-        dateOfBirth: '',
-        email: '',
-        firstname: '',
+        civility: '',
         lastname: '',
+        firstname: '',
+        dateOfBirth: '',
+        email: '',        
         roles: []
     });
     const [adminData, setAdminData] = useState({
@@ -32,10 +33,11 @@ export const AuthProvider = ({ children }) => {
                 setIsLoggedUser(true);
                 setUserData({
                     id: decodedToken.id,
+                    civility: decodedToken.civility,
+                    lastname: decodedToken.lastname,
+                    firstname: decodedToken.firstname,
                     dateOfBirth: decodedToken.dateOfBirth,
                     email: decodedToken.email,
-                    firstname: decodedToken.firstname,
-                    lastname: decodedToken.lastname,
                     roles: decodedToken.roles
                 });
             } catch (error) {
@@ -43,10 +45,11 @@ export const AuthProvider = ({ children }) => {
                 setIsLoggedUser(false);
                 setUserData({
                     id: '',
+                    civility: '',
+                    lastname: '',
+                    firstname: '',
                     dateOfBirth: '',
                     email: '',
-                    firstname: '',
-                    lastname: '',
                     roles: []
                 });
             }

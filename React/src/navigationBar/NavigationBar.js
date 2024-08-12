@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../AuthContext';
 
 const NavigationBar = () => {
     const { isLoggedUser, isLoggedAdmin, userData, adminData, logout } = useAuth();
@@ -19,6 +19,7 @@ const NavigationBar = () => {
             {isLoggedAdmin && adminData.roles.includes('ROLE_ADMIN') && (
               <>
                 <Link className="navbar-brand nav-link" to="/dashboard">Tableau de bord</Link>
+                <Link className="navbar-brand nav-link" to="reservations">Calendrier des réservations</Link>
                 <Link className="navbar-brand nav-link" to="/login" onClick={logout}>Déconnexion</Link>
               </>
             )}
@@ -26,8 +27,8 @@ const NavigationBar = () => {
 
           {!isLoggedUser && !isLoggedAdmin && (
             <>
-              <Link className="navbar-brand nav-link" to="/">Accueil</Link>
               <div className="navbar-nav ms-auto">
+                <Link className="navbar-brand nav-link" to="/">Accueil</Link>
                 <Link className="navbar-brand nav-link mr-3" to="/register">Inscription</Link>
                 <Link className="navbar-brand nav-link mr-3" to="/login">Connexion</Link>
               </div> 

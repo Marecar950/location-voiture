@@ -12,7 +12,7 @@ function UserReservations() {
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                const response = await axios.get(`https://mouzammil-marecar.fr/reservations?user_id=${user_id}`);
+                const response = await axios.get(`https://mouzammil-marecar.fr/user/reservations?user_id=${user_id}`);
                 console.log(response.data);
                 setReservations(response.data);
             } catch (error) {
