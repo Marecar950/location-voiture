@@ -81,7 +81,7 @@ class ReservationController extends AbstractController
         return $this->json(['message' => 'Merci de votre réservation. Nous avons envoyé une confirmation de votre réservation à votre adresse email.']);
     }
 
-    #[Route('/reservations', name: 'user_reservations', methods: ['GET'])]
+    #[Route('/user/reservations', name: 'user_reservations', methods: ['GET'])]
     public function getUserReservations(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $userId = $request->query->get('user_id');
@@ -115,5 +115,17 @@ class ReservationController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['success' => 'Votre réservation a été annulée']);
+    }
+
+    #[Route('/reservations', name: 'reservations', methods: ['GET'])]
+    public function getReservations(ReservationRepository $reservationRepository): JsonResponse
+    {
+            $reservations = $reservationRepository->findAll();
+
+            if (empty($reservations)) {
+                return new JsonResponse(['error' => 'Aucune réservation']);
+            }
+
+            return $this->json($reservations);
     }
 }
