@@ -4,6 +4,12 @@ import googleMapsApiKey from "../googleMapsApiKey";
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import { BsFillFuelPumpFill } from "react-icons/bs";
+import { IoMdSpeedometer } from "react-icons/io";
+import { GiGearStickPattern } from "react-icons/gi";
+import { FaUserFriends } from "react-icons/fa";
 
 const libraries = ["places"];
 
@@ -167,17 +173,16 @@ function Dashboard() {
                  filteredVoitures.map((result, index) => ( 
                   <div key={index} className="col-md-4 mb-4 car-card">
                       <div className="card h-100 shadow">
-                        <img src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="" />
+                        <LazyLoadImage src={`https://www.mouzammil-marecar.fr/uploads/${result[0].image}`} className="card-img-top car-image" alt="" />
                           <div className="card-body">
                               <h5 className="card-title">{result[0].marque}</h5>
+                              <div className="d-flex">
+                                <p className="me-3"><BsFillFuelPumpFill style={{ fontSize: '2rem' }} /> {result[0].typeCarburant}</p>
+                                <p className="me-3"><IoMdSpeedometer style={{ fontSize: '2rem' }} /> {result[0].kilometrage} km</p>
+                                <p className="me-3"><GiGearStickPattern style={{ fontSize: '2rem' }} /> {result[0].transmission}</p>
+                                <p className="list-group-item"><FaUserFriends style={{ fontSize: '2rem' }} /> {result[0].nombrePassagers}</p>
+                              </div>  
                               <ul className="list-group list-group-flush">
-                                <li className="list-group-item">Immatriculation : {result[0].immatriculation}</li>
-                                <li className="list-group-item">Type de carburant : {result[0].typeCarburant}</li>
-                                <li className="list-group-item">Kilométrage : {result[0].kilometrage} km</li>
-                                <li className="list-group-item">Transmission : {result[0].transmission}</li>
-                                <li className="list-group-item">Nombre de passagers : {result[0].nombrePassagers}</li>
-                                <li className="list-group-item">Prix de la location par jour : {result[0].prixLocation} €</li>
-                                <li className="list-group-item">Climatisation : {result[0].climatisation ? 'oui' : 'non'}</li>
                                 {result[0].disponibilite === 'disponible' && (
                                   <>
                                     <li className="list-group-item">Départ depuis : {result.departureLocation}</li>
@@ -186,6 +191,9 @@ function Dashboard() {
                                   </>
                                 )}
                               </ul>
+                              <div className="d-flex justify-content-end">
+                                <p className="list-group-item" style={{ fontSize: '1.5rem', fontWeight: 'bold'}}>{result[0].prixLocation} €/jour</p>
+                              </div>   
                             </div>  
  
                             <div className="card-footer d-flex justify-content-between">

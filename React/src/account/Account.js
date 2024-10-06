@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 
 function Account() {
@@ -7,6 +7,7 @@ function Account() {
     const { user_id } = useParams();
     const [data, setData] = useState({
     });
+    const location = useLocation();
 
     const formatDate = (isoDate) => {
         const dateObj = new Date(isoDate);
@@ -37,38 +38,44 @@ function Account() {
         <div className="container">
             <h3 className="mt-4 text-center">Informations personnelles</h3>
 
-                <div className="user-info mt-5 mb-3">
-
-                    <div className="row justify-content-center mt-3 mb-3">
-                        <div className="col-sm-2"><strong>Civilité</strong></div>
-                        <div className="col-sm-5">{data.civility}</div>
-                    </div>
-
-                    <div className="row justify-content-center mb-3">
-                        <div className="col-sm-2"><strong>Nom</strong></div>
-                        <div className="col-sm-5">{data.lastname}</div>
-                    </div>
-
-                    <div className="row justify-content-center mb-3">
-                        <div className="col-sm-2"><strong>Prénom</strong></div>
-                        <div className="col-sm-5">{data.firstname}</div>
-                    </div>
-
-                    <div className="row justify-content-center mb-3">
-                        <div className="col-sm-2"><strong>Date de naissance</strong></div>
-                        <div className="col-sm-5">{formatDate(data.dateOfBirth)}</div>
-                    </div>
-
-                    <div className="row justify-content-center mb-3">
-                        <div className="col-sm-2"><strong>Adresse e-mail</strong></div>
-                        <div className="col-sm-5">{data.email}</div>
-                    </div>
-
-                    <div className="row justify-content-center">
-                        <div className="col-sm-2"></div>
-                        <Link to={`/edit_profil/${user_id}`} className="btn btn-primary col-sm-5 offset-custom">Modifier mon profil</Link>
-                    </div>
+            {location.state && (
+                <div className="alert alert-success text-center">
+                    {location.state}
                 </div>
+            )}
+
+                <div className="row justify-content-center mt-3">
+                    <div className="col-md-6">
+                        <table className="table table-striped table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td><b>Nom</b></td>
+                                    <td>{data.civility}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Prénom</b></td>
+                                    <td>{data.firstname}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Date de naissance</b></td>
+                                    <td>{formatDate(data.dateOfBirth)}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Email</b></td>
+                                    <td>{data.email}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <td colSpan="2" className="d-flex justify-content-center">
+                        <Link to={`/edit_profil/${user_id}`} className="btn btn-primary btn-lg">Modifier mon profil</Link>
+                    </td>
+                </div>    
+
+                <div className="row justify-content-center">
+                    <div className="col-sm-2"></div>
+                </div>
+
 
         </div>
     )

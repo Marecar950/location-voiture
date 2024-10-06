@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StandaloneSearchBox, LoadScript }  from "@react-google-maps/api";
 import googleMapsApiKey from "../googleMapsApiKey";
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const libraries = ["places"];
@@ -15,6 +15,7 @@ function EditCarForm() {
 
     const inputRef = useRef();
     const apiKey = googleMapsApiKey();
+    const navigate = useNavigate();
 
     const { id } = useParams();
     const [voitureDetails, setVoitureDetails] = useState(
@@ -124,6 +125,7 @@ function EditCarForm() {
                 console.log(response.data);
                 setMessage(response.data.message); 
                 setSubmitted(true);
+                navigate('/dashboard', { state: response.data.message });
 
             } catch (error) {
                 console.error('Erreur lors de la requête :', error);

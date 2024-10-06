@@ -19,6 +19,8 @@ import Dashboard from "./admin/Dashboard.js";
 import AddCarForm from "./admin/AddCarForm.js";
 import EditCarForm from "./admin/EditCarForm.js";
 import ReservationCalendar from "./reservation/ReservationCalendar";
+import ClientList from './ClientList.js';
+import AuthenticatedRoutes from './AuthenticationRoutes.js';
 import './App.css';
 
 function App() {
@@ -38,7 +40,10 @@ function App() {
         </nav>
 
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route element={<AuthenticatedRoutes />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/clients" element={<ClientList />} />          
+          </Route>
           <Route path="/" element={<SearchVehicules />} />
           <Route path="/search_results" element={<SearchResults />} />
           <Route path="/reservation" element={<Reservation />} />

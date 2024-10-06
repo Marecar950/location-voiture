@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Profil() {
 
     const { id } = useParams();
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const [data, setData] = useState({
         civility: '',
@@ -58,8 +59,8 @@ function Profil() {
 
         try {
             const response = await axios.put(`https://mouzammil-marecar.fr/user/edit_profil/${id}`, data);
-            console.log(response.data);
             setMessage(response.data.message);
+            navigate(`/account/${id}`, { state : response.data.message });
         } catch (error) {
             console.error(error);
         }
@@ -100,7 +101,7 @@ function Profil() {
 
                         <div className="mb-3">
                             <label htmlFor="dateOfBirth">Date de naissance</label>
-                            <input type="date" id="dateOfBirth" name="dateOfBirth" className="form-control" onChange={handleChange} />
+                            <input type="date" id="dateOfBirth" name="dateOfBirth" className="form-control" value={data.dateOfBirth} onChange={handleChange} />
                         </div>
 
                         <div className="mb-3">
@@ -108,7 +109,7 @@ function Profil() {
                             <input type="email" id="email" name="email" className="form-control" value={data.email} onChange={handleChange} />
                         </div>
 
-                        <button className="btn btn-primary form-control">Modifier</button>
+                        <button className="btn btn-primary btn-lg form-control">Modifier</button>
 
                     </form>
 

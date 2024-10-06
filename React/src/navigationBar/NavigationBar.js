@@ -19,6 +19,7 @@ const NavigationBar = () => {
             {isLoggedAdmin && adminData.roles.includes('ROLE_ADMIN') && (
               <>
                 <Link className="navbar-brand nav-link" to="/dashboard">Tableau de bord</Link>
+                <Link className="navbar-brand nav-link" to="/clients">Liste des clients</Link>
                 <Link className="navbar-brand nav-link" to="reservations">Calendrier des réservations</Link>
                 <Link className="navbar-brand nav-link" to="/login" onClick={logout}>Déconnexion</Link>
               </>
